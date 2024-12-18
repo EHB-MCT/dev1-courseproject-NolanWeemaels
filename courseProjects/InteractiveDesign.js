@@ -62,6 +62,9 @@ function setup() {
     const changeColorButton = document.getElementById("changeColorButton");
     changeColorButton.addEventListener("click", changeInvaderColor);
 
+     // Add click event to destroy invaders
+     context.canvas.addEventListener("click", destroyInvader);
+
 
 }
 
@@ -111,6 +114,26 @@ function changeInvaderColor() {
     spaceInvaders = [];
     for (let i = 0; i < 10; i++) {
         spaceInvaders.push(createSpaceInvader(invaderColor));
+    }
+}
+
+// Function to destroy invaders on click
+function destroyInvader(event) {
+    const clickX = event.offsetX;
+    const clickY = event.offsetY;
+
+    for (let i = spaceInvaders.length - 1; i >= 0; i--) {
+        const invader = spaceInvaders[i];
+        if (
+            clickX > invader.x &&
+            clickX < invader.x + invader.width &&
+            clickY > invader.y &&
+            clickY < invader.y + invader.height
+        ) {
+            spaceInvaders.splice(i, 1); // Remove invader
+            score++; // Increase score for destroying an invader
+            break;
+        }
     }
 }
 
