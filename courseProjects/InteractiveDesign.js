@@ -46,6 +46,9 @@ let width = context.canvas.width;
 let height = context.canvas.height;
 let invaderColor =  Utils.hsl(Math.random()*200, 70, 70);
 let score = 0; // Score variable
+let timeLeft = 15; // Timer variable (15 seconds)
+let gameOver = false; // To check if the game is over
+let timerInterval;
 
 setup();
 update();
@@ -66,7 +69,15 @@ function setup() {
      // Add click event to destroy invaders
      context.canvas.addEventListener("click", destroyInvader);
 
-
+     // Start the timer
+    timerInterval = setInterval(() => {
+        if (!gameOver) {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+    }, 1000);
 }
 
 function mouseMove(eventData) {
@@ -75,7 +86,7 @@ function mouseMove(eventData) {
 }
 
 function update() {
-
+    if (gameOver) return; // Stop updating if the game is over
     
     context.fillStyle = "#000000"; 
     context.fillRect(0, 0, width, height);
@@ -101,6 +112,7 @@ function update() {
     context.fillStyle = "#FFFFFF";
     context.font = "30px Arial";
     context.fillText(`Score: ${score}`, width - 100, 30); // Score at the top-right corner
+    context.fillText(`Time: ${timeLeft}s`, width / 2, 50); // Timer centered at the top
     requestAnimationFrame(update);
 }
 
@@ -136,6 +148,20 @@ function destroyInvader(event) {
             score++; // Increase score for destroying an invader
             break;
         }
+    }
+}
+// Function to end the game
+function endGame() {
+    gameOver = true;
+    clearInterval(timerInterval); // Stop the timer
+
+    // Display win or lose message
+    context.fillStyle = "#FFFFFF";
+    context.font = "40px Arial";
+    if (score >= 20) {
+        context.fillText("You Win!", width / 2, height / 2);
+    } else {
+        context.fillText("You Lose!", width / 2, height / 2);
     }
 }
 
