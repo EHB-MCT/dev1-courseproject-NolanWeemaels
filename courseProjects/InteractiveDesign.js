@@ -45,6 +45,7 @@ let wind = 0;
 let width = context.canvas.width;
 let height = context.canvas.height;
 let invaderColor =  Utils.hsl(Math.random()*200, 70, 70);
+let score = 0; // Score variable
 
 setup();
 update();
@@ -97,8 +98,9 @@ function update() {
     if (spaceInvaders.length < 10) {
         spaceInvaders.push(createSpaceInvader(invaderColor));
     }
-
-
+    context.fillStyle = "#FFFFFF";
+    context.font = "30px Arial";
+    context.fillText(`Score: ${score}`, width - 100, 30); // Score at the top-right corner
     requestAnimationFrame(update);
 }
 
