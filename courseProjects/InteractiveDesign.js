@@ -2,6 +2,7 @@
 import context from "../../scripts/context.js";
 import * as Utils from "../../scripts/utils.js";
 
+
 // Space Invader Object
 function createSpaceInvader(color) {
     return {
@@ -166,4 +167,4 @@ function endGame() {
 }
 
 
-drawSmallSpaceInvader()
+
