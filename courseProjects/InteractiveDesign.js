@@ -1,65 +1,118 @@
-document.body.style.margin = "0";
-document.body.style.overflow = "hidden";
-document.body.style.backgroundColor = "#000";
+"use strict";
+import context from "../../scripts/context.js";
+import * as Utils from "../../scripts/utils.js";
 
-// Space Invader parts
-const invaderParts = [
-    { left: '25px', top: '25px' }, { left: '75px', top: '75px' },
-    { left: '125px', top: '25px' }, { left: '175px', top: '75px' },
-    { left: '225px', top: '25px' }, { left: '25px', top: '175px' },
-    { left: '225px', top: '175px' }
-];
+// Space Invader Object
+function createSpaceInvader(color) {
+    return {
+        x: Math.random() * (context.canvas.width - 300), 
+        y: -300, // Start above the screen
+        width: 300,
+        height: 300,
+        fillColor: color,
+        parts: [
+            {x: 75, y: 75, width: 50, height: 50},
+            {x: 125, y: 125, width: 50, height: 50},
+            {x: 175, y: 75, width: 50, height: 50},
+            {x: 225, y: 125, width: 50, height: 50},
+            {x: 275, y: 75, width: 50, height: 50},
+            {x: 75, y: 225, width: 50, height: 50},
+            {x: 275, y: 225, width: 50, height: 50}
+        ],
+        size: 300, 
+        speed: Math.random() * 2 + 1, 
+        opacity: 1, 
+        wind: 0, // Wind effect
+        move: function () {
+            this.y += this.speed; // Falling down
+            this.x += Math.random() * 2 - 1 + this.wind; // Horizontal wind movement
+        },
+        draw: function (context) {
+            context.fillStyle = "black"; // Background color (black)
+            context.fillRect(this.x + 50, this.y + 25, this.width, this.height);
 
-// Create an invader element
-function createInvader(x, y) {
-    const invader = document.createElement('div');
-    invader.style.position = 'absolute';
-    invader.style.left = `${x}px`;
-    invader.style.top = `${y}px`;
-    invader.style.width = '300px';
-    invader.style.height = '300px';
-
-    invaderParts.forEach(part => {
-        const partElement = document.createElement('div');
-        partElement.style.position = 'absolute';
-        partElement.style.width = '50px';
-        partElement.style.height = '50px';
-        partElement.style.backgroundColor = '#B76184'; // Default color
-        partElement.style.left = part.left;
-        partElement.style.top = part.top;
-        invader.appendChild(partElement);
-    });
-
-    document.body.appendChild(invader);
-    return invader;
-}
-
-// Create 50 invaders at random positions
-const invaders = Array.from({ length: 50 }, () => createInvader(Math.random() * window.innerWidth, Math.random() * window.innerHeight));
-
-// Change colors of invaders
-function changeColors() {
-    const newColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    invaders.forEach(invader => {
-        Array.from(invader.children).forEach(part => {
-            part.style.backgroundColor = newColor;
-        });
-    });
-}
-
-
-// Animate invaders
-function animate() {
-    invaders.forEach(invader => {
-        const currentTop = parseFloat(invader.style.top);
-        invader.style.top = `${currentTop + Math.random() * 2 + 1}px`;
-
-        if (currentTop > window.innerHeight) {
-            invader.style.top = `-${Math.random() * 100}px`;
+            context.fillStyle = this.fillColor;
+            this.parts.forEach(part => {
+                context.fillRect(part.x + this.x, part.y + this.y, part.width, part.height);
+            });
         }
-    });
-
-    requestAnimationFrame(animate);
+    };
 }
 
-animate(); // Start animation
+// Array to hold multiple space invaders
+let spaceInvaders = [];
+let wind = 0;
+let width = context.canvas.width;
+let height = context.canvas.height;
+let invaderColor =  Utils.hsl(Math.random()*200, 70, 70);
+
+setup();
+update();
+
+function setup() {
+    window.onmousemove = mouseMove;
+    context.textAlign = "center";
+
+    // Create initial space invaders
+    for (let i = 0; i < 10; i++) {
+        spaceInvaders.push(createSpaceInvader(invaderColor));
+    }
+
+    // Button to change invader color
+    const changeColorButton = document.getElementById("changeColorButton");
+    changeColorButton.addEventListener("click", changeInvaderColor);
+
+
+}
+
+function mouseMove(eventData) {
+    let xOffset = width / 2 - eventData.pageX;
+    wind = xOffset / 100; 
+}
+
+function update() {
+
+    
+    context.fillStyle = "#000000"; 
+    context.fillRect(0, 0, width, height);
+
+    // Update and draw each space invader
+    for (let i = spaceInvaders.length - 1; i >= 0; i--) {
+        let invader = spaceInvaders[i];
+        invader.wind = wind; // Update wind effect for each invader
+        invader.move();
+
+        // Remove invader if it goes off the screen
+        if (invader.y > height) {
+            spaceInvaders.splice(i, 1); // Remove the invader
+        }
+
+        invader.draw(context);
+    }
+
+    // Add new invaders if needed
+    if (spaceInvaders.length < 10) {
+        spaceInvaders.push(createSpaceInvader(invaderColor));
+    }
+
+
+    requestAnimationFrame(update);
+}
+
+// Function to change the color of the invaders
+function changeInvaderColor() {
+    // Generate a random color
+    const randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+
+    // Update the color of all space invaders
+    invaderColor = randomColor;
+
+    // Create new invaders with the updated color
+    spaceInvaders = [];
+    for (let i = 0; i < 10; i++) {
+        spaceInvaders.push(createSpaceInvader(invaderColor));
+    }
+}
+
+
+drawSmallSpaceInvader()
